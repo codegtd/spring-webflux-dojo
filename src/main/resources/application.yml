@@ -1,0 +1,21 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://db-compose:${PORT_DB}/${POSTGRES_DB}?schema=${SCHEMA_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
+
+
+
+#    url: r2dbc:postgresql://localhost:5432/postgres?schema=anime
+#    username: root
+#    password: root
+
+#    url: r2dbc:postgresql://db-compose:5432/${POSTGRES_DB}?schema=${POSTGRES_SCHEMA}
+#    username: ${POSTGRES_USER}
+#    password: ${POSTGRES_PASSWORD}
