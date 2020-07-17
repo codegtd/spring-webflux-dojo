@@ -2,9 +2,10 @@ version: "3.4"
 
 x-common-variables:
   &db-env-vars
-    POSTGRES_DB: postgres
+    POSTGRES_DB: anime
     POSTGRES_USER: root
     POSTGRES_PASSWORD: root
+    PORT_API: 8383
 
 volumes:
   webflux_data:
@@ -13,32 +14,30 @@ networks:
   webflux_rede:
 
 services:
-
   db-compose:
     container_name: db-postgres
     image: postgres:9.5-alpine
     hostname: postgres # postgres hostname
     restart: always
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes:
       - webflux_data:/var/lib/postgresql/data
     networks:
       - webflux_rede
     environment:
-      <<: *db-env-vars
-
+      *db-env-vars
 
   web-api:
     image: pauloportfolio/web-api
     build:
       context: ./
-      dockerfile: ./Dockerfile
+      dockerfile: ./dev-dockerfile
       args:
         JAR_FILE: target/spring-webflux-essentials-0.0.1-SNAPSHOT.jar
     ports:
-      - "8080:8080"
-      - "5005:5005"
+      - 8383:8383
+      - 5005:5005
     volumes:
       - webflux_data:/var/lib/postgresql/data
     depends_on:
@@ -46,27 +45,10 @@ services:
     networks:
       - webflux_rede
     environment:
-      PROFILE: test
-      DEBUG_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
+      DB_URL: r2dbc:pool:postgresql://db-compose:${PORT_DB}/${POSTGRES_DB}
+#      DB_URL: r2dbc:pool:postgresql://db-compose:${PORT_DB}/postgres
       <<: *db-env-vars
-      PORT_DB: 5432
-      SCHEMA_DB: anime
+      PROFILE: dev
+      DEBUG_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
       #JDK>=09: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
       #JDK  08: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Xmx1G -Xms128m -XX:MaxMetaspaceSize=128m
-
-#version: "3"
-#
-#volumes:
-#  webflux_data:
-#
-#services:
-#  db:
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: postgres
-#      POSTGRES_USER: root
-#      POSTGRES_PASSWORD: root
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - webflux_data:/var/lib/postgresql/data
