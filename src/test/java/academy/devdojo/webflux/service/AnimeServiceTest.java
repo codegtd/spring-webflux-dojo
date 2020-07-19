@@ -6,18 +6,19 @@ import academy.devdojo.webflux.entity.Anime;
 import academy.devdojo.webflux.repository.AnimeRepository;
 
 
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
-import reactor.core.scheduler.Schedulers;
 
+
+import reactor.blockhound.BlockingOperationError;
+import reactor.core.scheduler.Schedulers;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@DataR2dbcTest
 public class AnimeServiceTest extends GlobalTestConfig {
 
     @InjectMocks
@@ -40,9 +41,9 @@ public class AnimeServiceTest extends GlobalTestConfig {
             Schedulers.parallel().schedule(task);
 
             task.get(10 ,TimeUnit.SECONDS);
-//            Assert.fail("should fail");
+            Assert.fail("should fail");
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
-//            Assert.assertTrue("detected" ,e.getCause() instanceof BlockingOperationError);
+            Assert.assertTrue("detected" ,e.getCause() instanceof BlockingOperationError);
         }
     }
 
