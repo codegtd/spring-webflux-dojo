@@ -180,17 +180,17 @@
         <!--        </dependency>-->
 
         <!--        REST_ASSURE -> MODULOS GERAIS-->
-        <!--        <dependency>-->
-        <!--            <groupId>io.rest-assured</groupId>-->
-        <!--            <artifactId>rest-assured-common</artifactId>-->
-        <!--            <version>3.3.0</version>-->
-        <!--        </dependency>-->
+                <dependency>
+                    <groupId>io.rest-assured</groupId>
+                    <artifactId>rest-assured-common</artifactId>
+                    <version>4.3.1</version>
+                </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>io.rest-assured</groupId>-->
-        <!--            <artifactId>json-path</artifactId>-->
-        <!--            <version>3.3.0</version>-->
-        <!--        </dependency>-->
+<!--                <dependency>-->
+<!--                    <groupId>io.rest-assured</groupId>-->
+<!--                    <artifactId>json-path</artifactId>-->
+<!--                    <version>4.1.0</version>-->
+<!--                </dependency>-->
 
         <!--        <dependency>-->
         <!--            <groupId>io.rest-assured</groupId>-->

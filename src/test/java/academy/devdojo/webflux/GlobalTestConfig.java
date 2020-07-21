@@ -1,46 +1,35 @@
 package academy.devdojo.webflux;
 
 //REST-ASSURE: MODULOS COMUNS
-import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
+
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.LogConfig;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
-
-//ELEMENTOS REATIVOS EM GERAL
-import io.restassured.module.webtestclient.RestAssuredWebTestClient.*;
-import io.restassured.module.webtestclient.matcher.RestAssuredWebTestClientMatchers.*;
-import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import reactor.blockhound.BlockHound;
-
-//LOMBOK
+import io.restassured.module.webtestclient.RestAssuredWebTestClient;
+import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
+import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import lombok.extern.slf4j.Slf4j;
-
-//JUNIT: MODULOS
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-
-//SPRING: MODULOS
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.junit.runner.RunWith;
+import reactor.blockhound.BlockHound;
 
-//------CONFLITO---------------------------
+import static org.springframework.test.annotation.DirtiesContext.ClassMode;
+
+//------CONFLITOS---------------------------
 //@RunWith(SpringRunner.class)
 //--CONFLITANTES:-----------
-@Sql(value = "/data-mass-load.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(value = "/data-mass-clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @WebFluxTest
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@AutoConfigureWebTestClient
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 //------DB --------------------
 //--R2DBC----------------------
 @DataR2dbcTest
@@ -54,53 +43,43 @@ import org.junit.runner.RunWith;
 @ActiveProfiles("test")
 public class GlobalTestConfig {
 
-    private static String baseUri = "http://localhost:8080/animes";
-
-    private static Long MAX_TIMEOUT = 15000L;
-
-    private static ContentType API_CONTENT_TYPE = ContentType.JSON;
-
+    final private static String baseUri = "http://localhost:8080/animes";
+    final private static Long MAX_TIMEOUT = 15000L;
+    final private static ContentType API_CONTENT_TYPE = ContentType.JSON;
     //    @LocalServerPort
-    private static int port = 8080;
+    final private static int port = 8080;
 
     @BeforeClass
     public static void setUp() {
 
-        log.info("\n ENTROU - GLOBAL \n");
-
-        RestAssured.baseURI = baseUri;
-        RestAssured.port = port;
-
         //substitue os ".log().And()." em todos os REstAssureTestes
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+//        RestAssuredWebTestClient.enableLoggingOfRequestAndResponseIfValidationFails();
+//        RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig().logConfig(LogDetail.BODY);
 
         //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
-        RequestSpecBuilder reqBuilder = new RequestSpecBuilder();
-        reqBuilder.setContentType(API_CONTENT_TYPE);
-        RestAssured.requestSpecification = reqBuilder.build();
+        RestAssuredWebTestClient.requestSpecification =
+                new WebTestClientRequestSpecBuilder()
+                        .setContentType(API_CONTENT_TYPE).build();
 
         //DEFINE CONFIG-GLOBAL PARA OS RESPONSE DOS TESTES
-        ResponseSpecBuilder respBuilder = new ResponseSpecBuilder();
-        respBuilder.expectResponseTime(Matchers.lessThanOrEqualTo(MAX_TIMEOUT));
-        RestAssured.responseSpecification = respBuilder.build();
+        RestAssuredWebTestClient.responseSpecification =
+                new ResponseSpecBuilder()
+                        .expectResponseTime(
+                                Matchers.lessThanOrEqualTo(MAX_TIMEOUT)).build();
 
-        log.info("BlockHound.install() - OK");
-        BlockHound.install();
-
+        BlockHound.install(
+                //builder -> builder.allowBlockingCallsInside("java.util.UUID" ,"randomUUID")
+        );
     }
 
     @AfterClass
     public static void tearDown() {
-
-        log.info("\n SAIU - GLOBAL \n");
-
 //        DELETE AO TOKEN AFTER ALL TESTS
 //        FilterableRequestSpecification req = (FilterableRequestSpecification) RestAssured.requestSpecification;
 //        req.removeHeader("Autorization");
 
-        RestAssured.reset();
+        RestAssuredWebTestClient.reset();
     }
-
 }
 
 

@@ -1,24 +1,20 @@
 package academy.devdojo.webflux.service;
 
 import academy.devdojo.webflux.GlobalTestConfig;
+import academy.devdojo.webflux.controller.AnimeController;
 import academy.devdojo.webflux.databuilder.AnimeCreatorBuilder;
 import academy.devdojo.webflux.entity.Anime;
 import academy.devdojo.webflux.repository.AnimeRepository;
-
-
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
@@ -31,10 +27,13 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static io.restassured.http.ContentType.JSON;
+import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.http.HttpStatus.OK;
+import static org.mockito.BDDMockito.anyInt;
+import static org.mockito.BDDMockito.when;
+
+import io.restassured.module.webtestclient.RestAssuredWebTestClient.*;
+import io.restassured.module.webtestclient.matcher.RestAssuredWebTestClientMatchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AnimeServiceTest extends GlobalTestConfig {
@@ -49,8 +48,8 @@ public class AnimeServiceTest extends GlobalTestConfig {
     Anime animeCompare = AnimeCreatorBuilder.animeWithNameAndValidid().create();
 
     @Before
-    public void setUpLocal() throws Exception {
-        when(repo.findAll()).thenReturn(Flux.just(anime));
+    public void setUpLocal() {
+        when(service.findAll()).thenReturn(Flux.just(anime));
         when(repo.findById(Mockito.anyInt())).thenReturn(Mono.just(anime));
         when(repo.save(Mockito.any())).thenReturn(Mono.just(anime));
         when(repo.delete(Mockito.any(Anime.class))).thenReturn(Mono.empty());
@@ -113,7 +112,7 @@ public class AnimeServiceTest extends GlobalTestConfig {
     @Test
     public void delete() {
         StepVerifier
-                .create(service.delete(1))
+                .create(service.delete(anyInt()))
                 .expectSubscription()
                 .verifyComplete();
     }

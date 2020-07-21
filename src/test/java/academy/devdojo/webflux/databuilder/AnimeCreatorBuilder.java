@@ -32,6 +32,16 @@ public class AnimeCreatorBuilder {
         return AnimeCreatorBuilder.builder().anime(fakeNameAnime).build();
     }
 
+    public static AnimeCreatorBuilder animeEmpty() {
+        Anime fakeNameAnime = new Anime();
+        return AnimeCreatorBuilder.builder().anime(fakeNameAnime).build();
+    }
+
+    public static AnimeCreatorBuilder animeNull() {
+        Anime fakeNameAnime = null;
+        return AnimeCreatorBuilder.builder().anime(fakeNameAnime).build();
+    }
+
     public Anime create() {
         return this.anime;
     }
