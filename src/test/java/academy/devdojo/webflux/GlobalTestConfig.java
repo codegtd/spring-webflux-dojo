@@ -35,21 +35,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.runner.RunWith;
 
 //------CONFLITO---------------------------
-//--CONFLITANTES C/ @RUNWITH-----------
+//@RunWith(SpringRunner.class)
+//--CONFLITANTES:-----------
 @Sql(value = "/data-mass-load.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(value = "/data-mass-clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @WebFluxTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-//--PIVOT-CONFLITO --------------------
-//@RunWith(SpringRunner.class)
 //------DB --------------------
 //--R2DBC----------------------
 @DataR2dbcTest
 //--JPA-CONFLITO GERAL---------------------
 //@DataJpaTest
-//--DBCONFIG-CONFLITO GERA----------------
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-//-------------------------
 @Slf4j
 @TestPropertySource("classpath:application-test.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -57,7 +54,7 @@ import org.junit.runner.RunWith;
 @ActiveProfiles("test")
 public class GlobalTestConfig {
 
-    private static String baseUri = "http://restapi.wcaquino.me:80";
+    private static String baseUri = "http://localhost:8080/animes";
 
     private static Long MAX_TIMEOUT = 15000L;
 

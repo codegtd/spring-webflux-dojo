@@ -13,9 +13,9 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 @RequiredArgsConstructor
-@RequestMapping("animes")
 @Slf4j
 @RestController
+@RequestMapping("animes")
 public class AnimeController {
 
     private final AnimeService service;
