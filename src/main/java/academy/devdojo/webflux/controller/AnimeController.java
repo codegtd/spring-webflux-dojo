@@ -5,6 +5,7 @@ import academy.devdojo.webflux.service.IAnimeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -54,6 +55,9 @@ public class AnimeController{
         return service.update(anime.withId(id));
     }
 
+    //PreAuthorize: coloca 'Roles',
+    // que nao estejam especificadas no SecurityConfig
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "{id}")
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@PathVariable int id){
