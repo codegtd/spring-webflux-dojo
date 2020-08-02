@@ -1,7 +1,11 @@
 package academy.devdojo.webflux.config;
 
+import academy.devdojo.webflux.service.ISecurityService;
+import academy.devdojo.webflux.service.SecurityService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -21,33 +25,48 @@ public class SecurityConfig {
         return http
                 .csrf().disable()
                 .authorizeExchange()
-                .pathMatchers(HttpMethod.POST ,"/animes/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.GET ,"/animes/**").hasRole("USER")
+                .pathMatchers(HttpMethod.PUT ,"/animes/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.POST ,"/animes/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.DELETE ,"/animes/**").hasRole("ADMIN")
                 .anyExchange().authenticated().and()
                 .formLogin().and()
                 .httpBasic().and()
                 .build();
     }
 
-    //AUTENTICACAO EM MEMORIA
+    //***************************************//
+    //*******    DB AUTHENTICATION    *******//
+    //***************************************//
     @Bean
-    public MapReactiveUserDetailsService userDetailsService() {
-        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
-        UserDetails user = User
-                .withUsername("user")
-                .password(passwordEncoder.encode("devdojo"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User
-                .withUsername("admin")
-                .password(passwordEncoder.encode("devdojo"))
-                .roles("USER" ,"ADMIN")
-                .build();
-
-        return new MapReactiveUserDetailsService(user ,admin);
-
+    ReactiveAuthenticationManager authenticationManager(SecurityService securityService){
+        return new UserDetailsRepositoryReactiveAuthenticationManager(securityService);
     }
+
+
+    //***************************************//
+    //*******  MEMORY AUTHENTICATION  *******//
+    //***************************************//
+//    @Bean
+//    public MapReactiveUserDetailsService userDetailsService() {
+//        PasswordEncoder passwordEncoder =
+//                PasswordEncoderFactories
+//                        .createDelegatingPasswordEncoder();
+//
+//        UserDetails user = User
+//                .withUsername("user")
+//                .password(passwordEncoder.encode("devdojo"))
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails admin = User
+//                .withUsername("admin")
+//                .password(passwordEncoder.encode("devdojo"))
+//                .roles("USER" ,"ADMIN")
+//                .build();
+//
+//        return new MapReactiveUserDetailsService(user ,admin);
+//
+//    }
 
 }

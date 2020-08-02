@@ -7,7 +7,6 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface AnimeRepository extends ReactiveCrudRepository<Anime, Integer> {
-
     @Override
     Mono<Anime> findById(Integer id);
 }

@@ -20,7 +20,7 @@ import java.util.List;
 public class AnimeService implements IAnimeService {
 
     @Autowired
-    AnimeRepository repo;
+    private AnimeRepository repo;
 
     @Override
     public Flux<Anime> findAll() {

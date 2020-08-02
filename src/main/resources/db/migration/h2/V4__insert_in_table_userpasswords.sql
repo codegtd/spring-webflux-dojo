@@ -1,7 +1,13 @@
 INSERT INTO users_passwords (nameuser, username, password, authorities)
-VALUES ('paulo','paulo','1111', 'ROLE_ADMIN,ROLE_USER');
+VALUES ('paulo',
+        'paulo',
+        '{bcrypt}$2a$10$lBm1Qy45bR/fNT5i5OUBseNPcONtZs10earjLZ773qq.byhK/yKmS',
+        'ROLE_ADMIN,ROLE_USER');
 
 INSERT INTO users_passwords (nameuser, username, password, authorities)
-VALUES ('demetria','demetria','1111', 'ROLE_USER');
+VALUES ('demetria',
+        'demetria',
+        '{bcrypt}$2a$10$lBm1Qy45bR/fNT5i5OUBseNPcONtZs10earjLZ773qq.byhK/yKmS',
+        'ROLE_USER');
 
 

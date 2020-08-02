@@ -23,7 +23,7 @@ public class AnimeController{
 
     @Qualifier("service")
     @Autowired
-    IAnimeService service;
+    private IAnimeService service;
 
     @GetMapping
     @ResponseStatus(OK)
@@ -57,7 +57,7 @@ public class AnimeController{
 
     //PreAuthorize: coloca 'Roles',
     // que nao estejam especificadas no SecurityConfig
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "{id}")
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@PathVariable int id){

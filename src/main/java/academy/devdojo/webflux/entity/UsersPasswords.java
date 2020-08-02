@@ -3,6 +3,7 @@ package academy.devdojo.webflux.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Table("users_passwords")
 public class UsersPasswords implements UserDetails {
 
+    @Id
     private Integer id;
     private String nameuser;
     private String username;

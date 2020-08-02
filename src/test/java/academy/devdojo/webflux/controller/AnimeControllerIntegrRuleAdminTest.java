@@ -1,10 +1,10 @@
 package academy.devdojo.webflux.controller;
 
 import academy.devdojo.webflux.GlobalTestConfig;
-import academy.devdojo.webflux.databuilder.AnimeCreatorBuilder;
 import academy.devdojo.webflux.entity.Anime;
-import academy.devdojo.webflux.exception.CustomAttributes;
+import academy.devdojo.webflux.repository.AnimeRepository;
 import academy.devdojo.webflux.service.AnimeService;
+import academy.devdojo.webflux.utils.RoleUsersHeaders;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.After;
@@ -12,13 +12,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Import;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.context.WebApplicationContext;
 import reactor.blockhound.BlockingOperationError;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Arrays;
@@ -35,18 +32,14 @@ import static org.springframework.http.HttpStatus.*;
 
 //@WebFluxTest(controllers = AnimeController.class)
 //@Import({AnimeService.class ,CustomAttributes.class})
-////@AutoConfigureWebTestClient
-//@SpringBootTest
-public class AnimeControllerIntegrTest extends GlobalTestConfig {
+//@RunWith(SpringRunner.class)
+public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
 
     @Autowired
     WebTestClient testClient;
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+    private WebTestClient webTestClient;
 
     private Anime anime_1, anime_2;
 
@@ -54,7 +47,7 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
     public void setUpLocal() {
         anime_1 = animeWithName().create();
         anime_2 = animeWithName().create();
-        testClient = WebTestClient.bindToServer().baseUrl("http://localhost:8080/animes").build();
+        webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:8080/animes").build();
     }
 
     @After
@@ -64,11 +57,12 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void save() {
-
-        RestAssuredWebTestClient.given()
-                .webTestClient(testClient)
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
                 .header("Content-type" ,ContentType.JSON)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(anime_1)
 
                 .when()
@@ -87,12 +81,13 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void saveall_transaction_rollback() {
-
         List<Anime> listAnime = Arrays.asList(anime_1 ,anime_2);
 
-        RestAssuredWebTestClient.given()
-                .webTestClient(testClient)
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(listAnime)
 
                 .when()
@@ -111,12 +106,13 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void saveall_transaction_rollback_ERROR() {
-
         List<Anime> listAnime = Arrays.asList(anime_1 ,anime_2.withName(""));
 
-        RestAssuredWebTestClient.given()
-                .webTestClient(testClient)
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(listAnime)
 
                 .when()
@@ -128,7 +124,7 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
                 .log().headers().and()
                 .log().body().and()
 
-                .body("developerMensagem",is("A ResponseStatusException happened!!!"))
+                .body("developerMensagem" ,is("A ResponseStatusException happened!!!"))
         ;
     }
 
@@ -136,10 +132,12 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
     public void saveTestEmpty() {
         anime_1 = animeEmpty().create();
 
-        RestAssuredWebTestClient.given()
-                .webTestClient(testClient)
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
                 .header("Content-type" ,ContentType.JSON)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(anime_1)
 
                 .when()
@@ -154,10 +152,10 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void get() {
-
         RestAssuredWebTestClient
                 .given()
-                .webTestClient(testClient)
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .get()
@@ -176,24 +174,25 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
         RestAssuredWebTestClient
                 .given()
-                .webTestClient(testClient)
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
-                .get("/{id}" ,"1")
+                .get("/{id}" ,"2")
 
                 .then()
                 .statusCode(OK.value())
 
-                .body("name" ,is("paulo"))
+                .body("id" ,is(2))
         ;
     }
 
     @Test
     public void getById_ERROR() {
-
         RestAssuredWebTestClient
                 .given()
-                .webTestClient(testClient)
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .get("/{id}" ,"100")
@@ -210,7 +209,8 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
     public void delete() {
         RestAssuredWebTestClient
                 .given()
-                .webTestClient(testClient)
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .delete("/{id}" ,"1")
@@ -222,10 +222,10 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void delete_ERROR() {
-
         RestAssuredWebTestClient
                 .given()
-                .webTestClient(testClient)
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .delete("/{id}" ,"100")
@@ -240,10 +240,11 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void update() {
-
-        RestAssuredWebTestClient.given()
-                .webTestClient(testClient)
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
                 .body(anime_1)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .put("/{id}" ,"3")
@@ -257,9 +258,10 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
 
     @Test
     public void update_Empty() {
-
-        RestAssuredWebTestClient.given()
-                .webTestClient(testClient)
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(anime_1)
 
                 .when()
@@ -290,46 +292,6 @@ public class AnimeControllerIntegrTest extends GlobalTestConfig {
             Assert.assertTrue("detected" ,e.getCause() instanceof BlockingOperationError);
         }
     }
-
-    //--------------------------------------------------------------------------
-    @Test
-    public void get_Webcontext() {
-        //        testClient = WebTestClient.bindToController(controller).build();
-        testClient = WebTestClient.bindToApplicationContext(applicationContext)
-                .configureClient()
-                .build();
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(testClient)
-
-                .when()
-                .get()
-
-                .then()
-                .statusCode(OK.value())
-
-                .body("name" ,hasItem("GLAUCO"))
-        ;
-    }
-
-    @Test
-    public void get_StandAlone() {
-//        RestAssuredWebTestClient.standaloneSetup(new AnimeController());
-        RestAssuredWebTestClient.webAppContextSetup(webApplicationContext);
-        RestAssuredWebTestClient
-                .given()
-//                .standaloneSetup(new AnimeController())
-
-                .when()
-                .get()
-
-                .then()
-                .statusCode(OK.value())
-
-                .body("name" ,hasItem("paulo"))
-        ;
-    }
 }
 
 /* JAMAIS DELETAR!!!!!!!
@@ -345,3 +307,47 @@ or using the DSL:
 given().
 		mockMvc(..). ..
  */
+
+//    @Autowired
+//    private ApplicationContext applicationContext;
+//
+//    @Autowired
+//    private WebApplicationContext webApplicationContext;
+//    @Test
+//    public void get_Webcontext() {
+//        //        testClient = WebTestClient.bindToController(controller).build();
+//        testClient = WebTestClient.bindToApplicationContext(applicationContext)
+//                .configureClient()
+//                .build();
+//
+//        RestAssuredWebTestClient
+//                .given()
+//                .webTestClient(testClient)
+//
+//                .when()
+//                .get()
+//
+//                .then()
+//                .statusCode(OK.value())
+//
+//                .body("name" ,hasItem("GLAUCO"))
+//        ;
+//    }
+//
+//    @Test
+//    public void get_StandAlone() {
+////        RestAssuredWebTestClient.standaloneSetup(new AnimeController());
+//        RestAssuredWebTestClient.webAppContextSetup(webApplicationContext);
+//        RestAssuredWebTestClient
+//                .given()
+////                .standaloneSetup(new AnimeController())
+//
+//                .when()
+//                .get()
+//
+//                .then()
+//                .statusCode(OK.value())
+//
+//                .body("name" ,hasItem("paulo"))
+//        ;
+//    }

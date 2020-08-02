@@ -14,28 +14,31 @@ import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 import reactor.blockhound.BlockHound;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode;
 
-//------CONFLITOS---------------------------
+//------CONFLITO: SpringRunner X WebFluxTest---------------------------
 //@RunWith(SpringRunner.class)
 //--CONFLITANTES:-----------
 @WebFluxTest
-@AutoConfigureWebTestClient
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-//------DB --------------------
-//--R2DBC----------------------
 @DataR2dbcTest
+//----------------------------------------------
 //--JPA-CONFLITO GERAL---------------------
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//----------------------------------------------
+//@AutoConfigureWebTestClient
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 @TestPropertySource("classpath:application-test.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -59,7 +62,8 @@ public class GlobalTestConfig {
         //DEFINE CONFIG-GLOBAL PARA OS REQUESTS DOS TESTES
         RestAssuredWebTestClient.requestSpecification =
                 new WebTestClientRequestSpecBuilder()
-                        .setContentType(API_CONTENT_TYPE).build();
+                        .setContentType(API_CONTENT_TYPE)
+                        .build();
 
         //DEFINE CONFIG-GLOBAL PARA OS RESPONSE DOS TESTES
         RestAssuredWebTestClient.responseSpecification =
