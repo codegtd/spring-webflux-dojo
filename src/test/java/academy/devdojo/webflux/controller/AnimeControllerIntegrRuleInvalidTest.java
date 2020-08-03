@@ -26,9 +26,6 @@ import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.animeWithN
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 
-//@WebFluxTest(controllers = AnimeController.class)
-//@Import({AnimeService.class ,CustomAttributes.class})
-//@RunWith(SpringRunner.class)
 public class AnimeControllerIntegrRuleInvalidTest extends GlobalTestConfig {
 
     @Autowired

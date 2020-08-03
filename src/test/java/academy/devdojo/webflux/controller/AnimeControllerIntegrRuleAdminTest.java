@@ -11,8 +11,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Mono;
@@ -30,9 +33,7 @@ import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.*;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 
-//@WebFluxTest(controllers = AnimeController.class)
-//@Import({AnimeService.class ,CustomAttributes.class})
-//@RunWith(SpringRunner.class)
+
 public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
 
     @Autowired
