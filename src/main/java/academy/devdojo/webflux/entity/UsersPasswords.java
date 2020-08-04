@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("users_passwords")
+@Table("userspasswords")
 public class UsersPasswords implements UserDetails {
 
     @Id

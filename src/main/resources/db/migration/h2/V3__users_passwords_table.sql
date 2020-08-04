@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS users_passwords
+CREATE TABLE IF NOT EXISTS userspasswords
 (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nameuser VARCHAR(255) NOT NULL,
