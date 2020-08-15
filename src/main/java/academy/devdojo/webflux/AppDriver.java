@@ -11,11 +11,12 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 public class AppDriver {
 
     public static void main(String[] args) {
-        System.out.println(
-                PasswordEncoderFactories
-                        .createDelegatingPasswordEncoder()
-                        .encode("devdojo"));
-        SpringApplication.run(AppDriver.class ,args);
+        System.out.println("\nPASSWORD GENERATED: >>>>>>>>" +
+                                   PasswordEncoderFactories
+                                           .createDelegatingPasswordEncoder()
+                                           .encode("devdojo") + "\n");
+
+        SpringApplication.run(AppDriver.class,args);
     }
 
 }

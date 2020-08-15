@@ -1,4 +1,4 @@
-package academy.devdojo.webflux.controller;
+package academy.devdojo.webflux.controller.TRANSACTIONS;
 
 import academy.devdojo.webflux.GlobalTestConfig;
 import academy.devdojo.webflux.entity.Anime;
@@ -26,11 +26,10 @@ import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.animeWithN
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 
-public class AnimeControllerIntegrRuleInvalidTest extends GlobalTestConfig {
 
-    @Autowired
-    WebTestClient testClient;
+public class AnimeControllerIntegrTransactionsTest extends GlobalTestConfig {
 
+    //WEB-TEST-CLIENT(non-blocking client) WITH MOCK-SERVER
     @Autowired
     private WebTestClient webTestClient;
 
@@ -40,30 +39,14 @@ public class AnimeControllerIntegrRuleInvalidTest extends GlobalTestConfig {
     public void setUpLocal() {
         anime_1 = animeWithName().create();
         anime_2 = animeWithName().create();
+
+        //REAL-SERVER(non-blocking client)  IN WEB-TEST-CLIENT:
         webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:8080/animes").build();
     }
 
     @After
     public void tearDownLocal() {
 //        service.delete(anime.getId());
-    }
-
-    @Test
-    public void save() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header("Accept" ,ContentType.ANY)
-                .header("Content-type" ,ContentType.JSON)
-                .header(RoleUsersHeaders.role_invalid_header)
-                .body(anime_1)
-
-                .when()
-                .post()
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
     }
 
     @Test
@@ -74,170 +57,46 @@ public class AnimeControllerIntegrRuleInvalidTest extends GlobalTestConfig {
                 .given()
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
-                .header(RoleUsersHeaders.role_invalid_header)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(listAnime)
 
                 .when()
                 .post("/saveall_rollback")
 
                 .then()
-                .statusCode(UNAUTHORIZED.value())
+                .contentType(ContentType.JSON)
+                .statusCode(CREATED.value())
+                .log().headers().and()
+                .log().body().and()
+
+                .body("size()" ,is(listAnime.size()))
+                .body("name" ,hasItems(anime_1.getName() ,anime_2.getName()))
         ;
     }
 
     @Test
     public void saveall_transaction_rollback_ERROR() {
-        List<Anime> listAnime = Arrays.asList(anime_1 ,anime_2.withName(""));
+        List<Anime> listAnime = Arrays.asList(anime_1 ,anime_2);
 
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
-                .header(RoleUsersHeaders.role_invalid_header)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(listAnime)
 
                 .when()
                 .post("/saveall_rollback")
 
-
                 .then()
-                .statusCode(UNAUTHORIZED.value())
+                .contentType(ContentType.JSON)
+                .statusCode(BAD_REQUEST.value())
+                .log().headers().and()
+                .log().body().and()
+
+                .body("developerMensagem" ,is("A ResponseStatusException happened!!!"))
         ;
     }
-
-    @Test
-    public void saveTestEmpty() {
-        anime_1 = animeEmpty().create();
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header("Accept" ,ContentType.ANY)
-                .header("Content-type" ,ContentType.JSON)
-                .header(RoleUsersHeaders.role_invalid_header)
-                .body(anime_1)
-
-                .when()
-                .post()
-
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void get() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_invalid_header)
-
-                .when()
-                .get()
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void getById() {
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_invalid_header)
-
-                .when()
-                .get("/{id}" ,"2")
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void getById_ERROR() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_invalid_header)
-
-                .when()
-                .get("/{id}" ,"100")
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void delete() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_invalid_header)
-
-                .when()
-                .delete("/{id}" ,"1")
-
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void delete_ERROR() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_invalid_header)
-
-                .when()
-                .delete("/{id}" ,"100")
-
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void update() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .body(anime_1)
-                .header(RoleUsersHeaders.role_invalid_header)
-
-                .when()
-                .put("/{id}" ,"3")
-
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
-    @Test
-    public void update_Empty() {
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_invalid_header)
-                .body(anime_1)
-
-                .when()
-                .put("/{id}" ,"300")
-
-
-                .then()
-                .statusCode(UNAUTHORIZED.value())
-        ;
-    }
-
 
     @Test
     public void blockHoundWorks() {

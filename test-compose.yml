@@ -3,6 +3,7 @@ version: "3.4"
 x-common-variables:
   &db-env-vars
     PORT_API: 8080
+    PORT_DEBUG: 5005
 
 volumes:
   webflux_data:

@@ -1,4 +1,4 @@
-package academy.devdojo.webflux.controller;
+package academy.devdojo.webflux.controller.FULL_TESTS;
 
 import academy.devdojo.webflux.GlobalTestConfig;
 import academy.devdojo.webflux.entity.Anime;
@@ -26,11 +26,10 @@ import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.animeWithN
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 
-public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
 
-    @Autowired
-    WebTestClient testClient;
+public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
 
+    //WEB-TEST-CLIENT(non-blocking client) WITH MOCK-SERVER
     @Autowired
     private WebTestClient webTestClient;
 
@@ -40,6 +39,8 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
     public void setUpLocal() {
         anime_1 = animeWithName().create();
         anime_2 = animeWithName().create();
+
+        //REAL-SERVER(non-blocking client)  IN WEB-TEST-CLIENT:
         webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:8080/animes").build();
     }
 
@@ -55,53 +56,69 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
                 .header("Content-type" ,ContentType.JSON)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(anime_1)
 
                 .when()
                 .post()
 
                 .then()
-                .statusCode(FORBIDDEN.value())
+                .log().headers().and()
+                .log().body().and()
+                .contentType(ContentType.JSON)
+                .statusCode(CREATED.value())
+
+                //equalTo para o corpo do Json
+                .body("name" ,equalTo(anime_1.getName()))
         ;
     }
 
     @Test
     public void saveall_transaction_rollback() {
+        List<Anime> listAnime = java.util.Arrays.asList(anime_1 ,anime_2);
+
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
+                .header("Accept" ,ContentType.ANY)
+                .header(RoleUsersHeaders.role_admin_header)
+                .body(listAnime)
+
+                .when()
+                .post("/saveall_rollback")
+
+                .then()
+                .contentType(ContentType.JSON)
+                .statusCode(CREATED.value())
+                .log().headers().and()
+                .log().body().and()
+
+                .body("size()" ,is(listAnime.size()))
+                .body("name" ,hasItems(anime_1.getName() ,anime_2.getName()))
+        ;
+    }
+
+    @Test
+    public void saveall_transaction_rollback_ERROR() {
         List<Anime> listAnime = Arrays.asList(anime_1 ,anime_2);
 
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(listAnime)
 
                 .when()
                 .post("/saveall_rollback")
 
                 .then()
-                .statusCode(FORBIDDEN.value())
-        ;
-    }
+                .contentType(ContentType.JSON)
+                .statusCode(BAD_REQUEST.value())
+                .log().headers().and()
+                .log().body().and()
 
-    @Test
-    public void saveall_transaction_rollback_ERROR() {
-        List<Anime> listAnime = Arrays.asList(anime_1 ,anime_2.withName(""));
-
-        RestAssuredWebTestClient
-                .given()
-                .webTestClient(webTestClient)
-                .header("Accept" ,ContentType.ANY)
-                .header(RoleUsersHeaders.role_user_header)
-                .body(listAnime)
-
-                .when()
-                .post("/saveall_rollback")
-
-
-                .then()
-                .statusCode(FORBIDDEN.value())
+                .body("developerMensagem" ,is("A ResponseStatusException happened!!!"))
         ;
     }
 
@@ -114,15 +131,35 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
                 .header("Content-type" ,ContentType.JSON)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(anime_1)
 
                 .when()
                 .post()
 
+                .then()
+                .statusCode(BAD_REQUEST.value())
+
+                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
+        ;
+    }
+
+    @Test
+    public void get_plain_password() {
+        RestAssuredWebTestClient
+                .given()
+                .webTestClient(webTestClient)
+                .header(RoleUsersHeaders.role_admin_header_plain)
+
+                .when()
+                .get()
 
                 .then()
-                .statusCode(FORBIDDEN.value())
+                .statusCode(OK.value())
+                .log().headers().and()
+                .log().body().and()
+
+                .body("name" ,hasItem("GLAUCO"))
         ;
     }
 
@@ -131,7 +168,7 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .get()
@@ -151,7 +188,7 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .get("/{id}" ,"2")
@@ -168,7 +205,7 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .get("/{id}" ,"100")
@@ -186,15 +223,13 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .delete("/{id}" ,"1")
 
-
                 .then()
-                .statusCode(FORBIDDEN.value())
-        ;
+                .statusCode(NO_CONTENT.value())
         ;
     }
 
@@ -203,14 +238,16 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .delete("/{id}" ,"100")
 
-
                 .then()
-                .statusCode(FORBIDDEN.value())
+                .statusCode(NOT_FOUND.value())
+
+                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
+                .body("name" ,nullValue())
         ;
     }
 
@@ -220,14 +257,15 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
                 .given()
                 .webTestClient(webTestClient)
                 .body(anime_1)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
 
                 .when()
                 .put("/{id}" ,"3")
 
-
                 .then()
-                .statusCode(FORBIDDEN.value())
+                .log().headers().and()
+                .log().body().and()
+                .statusCode(NO_CONTENT.value())
         ;
     }
 
@@ -236,18 +274,19 @@ public class AnimeControllerIntegrRuleUserTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_user_header)
+                .header(RoleUsersHeaders.role_admin_header)
                 .body(anime_1)
 
                 .when()
                 .put("/{id}" ,"300")
 
-
                 .then()
-                .statusCode(FORBIDDEN.value())
+                .statusCode(NOT_FOUND.value())
+
+                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
+                .body("name" ,nullValue())
         ;
     }
-
 
     @Test
     public void blockHoundWorks() {

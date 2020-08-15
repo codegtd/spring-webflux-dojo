@@ -24,20 +24,18 @@
         <java.version>11</java.version>
         <blockhound.version>1.0.3.RELEASE</blockhound.version>
         <reactor-tools.version>3.3.7.RELEASE</reactor-tools.version>
-        <spring-boot-starter-validation.version>2.3.1.RELEASE</spring-boot-starter-validation.version>
+        <spring-boot-starter-validation.version>2.3.1.RELEASE
+        </spring-boot-starter-validation.version>
         <!--        <r2dbc-postgresql.version>0.8.2.RELEASE</r2dbc-postgresql.version>-->
     </properties>
 
     <dependencies>
-
-        <!--#########################-->
-        <!--        MODULO DB        -->
-        <!--#########################-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-r2dbc</artifactId>
         </dependency>
 
+        <!--        DB-->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-r2dbc</artifactId>
@@ -108,7 +106,6 @@
             <version>${spring-boot-starter-validation.version}</version>
         </dependency>
 
-
         <!--#########################-->
         <!--     MODULE DE TESTE     -->
         <!--#########################-->
@@ -124,6 +121,7 @@
             <version>5.0.17.RELEASE</version>
         </dependency>
 
+        <!--        TEST-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -218,6 +216,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+
     </build>
 
 </project>

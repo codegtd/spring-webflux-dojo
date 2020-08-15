@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AnimeControllerTest extends GlobalTestConfig {
+public class AnimeControllerMockTest extends GlobalTestConfig {
 
     @InjectMocks
     private AnimeController controller;

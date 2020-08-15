@@ -16,18 +16,22 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @RequiredArgsConstructor
 public class RoleUsersHeaders {
 
+    public static Header role_admin_header_plain = new Header(
+            "Authorization",
+            "Basic paulo:devdojo");
+
     public static Header role_admin_header = new Header(
-            "Authorization" ,
+            "Authorization",
             "Basic " + Base64Utils
                     .encodeToString(("paulo" + ":" + "devdojo").getBytes(UTF_8)));
 
     public static Header role_user_header = new Header(
-            "Authorization" ,
+            "Authorization",
             "Basic " + Base64Utils
                     .encodeToString(("demetria" + ":" + "devdojo").getBytes(UTF_8)));
 
     public static Header role_invalid_header = new Header(
-            "Authorization" ,
+            "Authorization",
             "Basic " + Base64Utils
                     .encodeToString(("x" + ":" + "devdojo").getBytes(UTF_8)));
 

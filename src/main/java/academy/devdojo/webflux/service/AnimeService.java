@@ -55,16 +55,17 @@ public class AnimeService implements IAnimeService {
     @Transactional
     @Override
     public Flux<Anime> saveallrollback(List<Anime> animes) {
-        return repo.saveAll(animes).doOnNext(this::throwResponseStatusExceptionWhenEmptyName);
+        return repo.saveAll(animes)
+                   .doOnNext(this::throwResponseStatusExceptionWhenEmptyName);
     }
 
     private void throwResponseStatusExceptionWhenEmptyName(Anime anime) {
         if (StringUtil.isNullOrEmpty(anime.getName()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST ,"Invalid Name");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid Name");
     }
 
     public <T> Mono<T> monoReponseStatusNotFoundException() {
         return Mono
-                .error(new ResponseStatusException(HttpStatus.NOT_FOUND ,"Anime not found"));
+                .error(new ResponseStatusException(HttpStatus.NOT_FOUND,"Anime not found"));
     }
 }

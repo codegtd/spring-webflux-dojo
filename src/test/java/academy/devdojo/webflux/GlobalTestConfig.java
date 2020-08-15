@@ -42,10 +42,10 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode;
 @AutoConfigureWebTestClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-@TestPropertySource("classpath:application-test.properties")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 @Ignore
 @ActiveProfiles("test")
+@TestPropertySource("classpath:application-test.properties")
 public class GlobalTestConfig {
 
     final private static String baseUri = "http://localhost:8080/animes";

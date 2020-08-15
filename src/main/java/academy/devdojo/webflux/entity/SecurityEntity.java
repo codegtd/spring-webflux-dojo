@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("userspasswords")
-public class UsersPasswords implements UserDetails {
+public class SecurityEntity implements UserDetails {
 
     @Id
     private Integer id;

@@ -1,9 +1,7 @@
-package academy.devdojo.webflux.controller;
+package academy.devdojo.webflux.controller.FULL_TESTS;
 
 import academy.devdojo.webflux.GlobalTestConfig;
 import academy.devdojo.webflux.entity.Anime;
-import academy.devdojo.webflux.repository.AnimeRepository;
-import academy.devdojo.webflux.service.AnimeService;
 import academy.devdojo.webflux.utils.RoleUsersHeaders;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
@@ -11,14 +9,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.blockhound.BlockingOperationError;
-import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Arrays;
@@ -28,14 +21,14 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
-import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.*;
+import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.animeEmpty;
+import static academy.devdojo.webflux.databuilder.AnimeCreatorBuilder.animeWithName;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpStatus.*;
 
+public class AnimeControllerIntegrRuleInvalidTest extends GlobalTestConfig {
 
-public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
-
+    //WEB-TEST-CLIENT(non-blocking client) WITH MOCK-SERVER
     @Autowired
     WebTestClient testClient;
 
@@ -48,6 +41,8 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
     public void setUpLocal() {
         anime_1 = animeWithName().create();
         anime_2 = animeWithName().create();
+
+        //REAL-SERVER(non-blocking client)  IN WEB-TEST-CLIENT:
         webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:8080/animes").build();
     }
 
@@ -63,20 +58,14 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
                 .header("Content-type" ,ContentType.JSON)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
                 .body(anime_1)
 
                 .when()
                 .post()
 
                 .then()
-                .log().headers().and()
-                .log().body().and()
-                .contentType(ContentType.JSON)
-                .statusCode(CREATED.value())
-
-                //equalTo para o corpo do Json
-                .body("name" ,equalTo(anime_1.getName()))
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -88,20 +77,14 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
                 .given()
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
                 .body(listAnime)
 
                 .when()
                 .post("/saveall_rollback")
 
                 .then()
-                .contentType(ContentType.JSON)
-                .statusCode(CREATED.value())
-                .log().headers().and()
-                .log().body().and()
-
-                .body("size()" ,is(listAnime.size()))
-                .body("name" ,hasItems(anime_1.getName() ,anime_2.getName()))
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -113,19 +96,15 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
                 .given()
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
                 .body(listAnime)
 
                 .when()
                 .post("/saveall_rollback")
 
-                .then()
-                .contentType(ContentType.JSON)
-                .statusCode(BAD_REQUEST.value())
-                .log().headers().and()
-                .log().body().and()
 
-                .body("developerMensagem" ,is("A ResponseStatusException happened!!!"))
+                .then()
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -138,16 +117,15 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
                 .webTestClient(webTestClient)
                 .header("Accept" ,ContentType.ANY)
                 .header("Content-type" ,ContentType.JSON)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
                 .body(anime_1)
 
                 .when()
                 .post()
 
-                .then()
-                .statusCode(BAD_REQUEST.value())
 
-                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
+                .then()
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -156,17 +134,13 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
 
                 .when()
                 .get()
 
                 .then()
-                .statusCode(OK.value())
-                .log().headers().and()
-                .log().body().and()
-
-                .body("name" ,hasItem("GLAUCO"))
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -176,15 +150,13 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
 
                 .when()
                 .get("/{id}" ,"2")
 
                 .then()
-                .statusCode(OK.value())
-
-                .body("id" ,is(2))
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -193,16 +165,13 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
 
                 .when()
                 .get("/{id}" ,"100")
 
                 .then()
-                .statusCode(NOT_FOUND.value())
-
-                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
-                .body("name" ,nullValue())
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -211,13 +180,14 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
 
                 .when()
                 .delete("/{id}" ,"1")
 
+
                 .then()
-                .statusCode(NO_CONTENT.value())
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -226,16 +196,14 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
 
                 .when()
                 .delete("/{id}" ,"100")
 
-                .then()
-                .statusCode(NOT_FOUND.value())
 
-                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
-                .body("name" ,nullValue())
+                .then()
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -245,15 +213,14 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
                 .given()
                 .webTestClient(webTestClient)
                 .body(anime_1)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
 
                 .when()
                 .put("/{id}" ,"3")
 
+
                 .then()
-                .log().headers().and()
-                .log().body().and()
-                .statusCode(NO_CONTENT.value())
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
@@ -262,17 +229,15 @@ public class AnimeControllerIntegrRuleAdminTest extends GlobalTestConfig {
         RestAssuredWebTestClient
                 .given()
                 .webTestClient(webTestClient)
-                .header(RoleUsersHeaders.role_admin_header)
+                .header(RoleUsersHeaders.role_invalid_header)
                 .body(anime_1)
 
                 .when()
                 .put("/{id}" ,"300")
 
-                .then()
-                .statusCode(NOT_FOUND.value())
 
-                .body("developerMensagem" ,equalTo("A ResponseStatusException happened!!!"))
-                .body("name" ,nullValue())
+                .then()
+                .statusCode(UNAUTHORIZED.value())
         ;
     }
 
