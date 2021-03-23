@@ -1,11 +1,9 @@
 package academy.devdojo.webflux.service;
 
 import academy.devdojo.webflux.GlobalTestConfig;
-import academy.devdojo.webflux.controller.AnimeController;
 import academy.devdojo.webflux.databuilder.AnimeCreatorBuilder;
 import academy.devdojo.webflux.entity.Anime;
 import academy.devdojo.webflux.repository.AnimeRepository;
-import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
@@ -27,13 +24,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
-import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.BDDMockito.anyInt;
 import static org.mockito.BDDMockito.when;
-
-import io.restassured.module.webtestclient.RestAssuredWebTestClient.*;
-import io.restassured.module.webtestclient.matcher.RestAssuredWebTestClientMatchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AnimeServiceTest extends GlobalTestConfig {

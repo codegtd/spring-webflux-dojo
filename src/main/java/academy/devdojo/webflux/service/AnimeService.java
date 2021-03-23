@@ -3,7 +3,6 @@ package academy.devdojo.webflux.service;
 import academy.devdojo.webflux.entity.Anime;
 import academy.devdojo.webflux.repository.AnimeRepository;
 import io.netty.util.internal.StringUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -22,10 +21,12 @@ public class AnimeService implements IAnimeService {
     @Autowired
     private AnimeRepository repo;
 
+
     @Override
     public Flux<Anime> findAll() {
         return repo.findAll();
     }
+
 
     @Override
     public Mono<Anime> findById(int id) {
@@ -34,10 +35,12 @@ public class AnimeService implements IAnimeService {
                 .switchIfEmpty(monoReponseStatusNotFoundException());
     }
 
+
     @Override
     public Mono<Anime> save(Anime anime) {
         return repo.save(anime);
     }
+
 
     @Override
     public Mono<Void> update(Anime anime) {
@@ -46,11 +49,13 @@ public class AnimeService implements IAnimeService {
                 .then();
     }
 
+
     @Override
     public Mono<Void> delete(int id) {
         return findById(id)
                 .flatMap(repo::delete);
     }
+
 
     @Transactional
     @Override
@@ -59,10 +64,12 @@ public class AnimeService implements IAnimeService {
                    .doOnNext(this::throwResponseStatusExceptionWhenEmptyName);
     }
 
+
     private void throwResponseStatusExceptionWhenEmptyName(Anime anime) {
         if (StringUtil.isNullOrEmpty(anime.getName()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid Name");
     }
+
 
     public <T> Mono<T> monoReponseStatusNotFoundException() {
         return Mono

@@ -1,8 +1,8 @@
 echo on
 rem MAVEN-CLEAN-PACKAGE WITHOUT TESTS
-rem cd ..
-rem call mvn clean package -DskipTests
-rem cd docker-script-start-files
+cd ..
+call mvn clean package -DskipTests
+cd docker-script-start-files
 
 docker-compose -f ../dev-compose.yml down --remove-orphans
 docker-compose -f ../test-compose.yml down --remove-orphans

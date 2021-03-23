@@ -39,10 +39,10 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode;
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 //----------------------------------------------
-@AutoConfigureWebTestClient
+//@AutoConfigureWebTestClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Slf4j
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@Slf4j
 @Ignore
 @ActiveProfiles("test")
 @TestPropertySource("classpath:application-test.properties")
